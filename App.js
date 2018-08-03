@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 export class App extends Component {
   state = {
     latitude: null,
-    lonitude: null,
+    longitude: null,
     error: null,
     request: false,
     landmarks: {}
@@ -37,10 +37,8 @@ export class App extends Component {
           this.state.latitude
         }|${this.state.longitude}`
       )
-        .then(landmarks => {
-          console.log(landmarks);
-          this.setState({ landmarks });
-        })
+        .then(response => response.json())
+        .then(landmarks => this.setState({ landmarks }))
         .catch(console.log);
     }
   }
@@ -50,11 +48,7 @@ export class App extends Component {
   }
 
   render() {
-    if (this.state.request === true) {
-      return this.state.landmarks.query.geosearch.map(landmark => {
-        <p>{landmark.title}</p>;
-      });
-    }
+    console.log(this.state);
     return (
       <View
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}
@@ -70,6 +64,7 @@ export class App extends Component {
             this.setState({ request: true });
           }}
         />
+        <Text>space</Text>
       </View>
     );
   }
