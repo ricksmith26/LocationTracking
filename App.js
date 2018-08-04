@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { View, Text, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import superagent from 'superagent';
 
 export class App extends Component {
   state = {
@@ -8,7 +9,9 @@ export class App extends Component {
     longitude: null,
     error: null,
     request: false,
-    landmarks: {}
+    landmarks: {},
+    cookie: {},
+    titles: []
   };
 
   componentDidMount() {
@@ -25,21 +28,30 @@ export class App extends Component {
         enableHighAccuracy: true,
         timeout: 20000,
         maximumAge: 1000,
-        distanceFilter: 5
+        distanceFilter: 10
       }
     );
   }
 
   componentDidUpdate(_, prevState) {
     if (prevState.request !== this.state.request) {
-      fetch(
-        `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${
-          this.state.latitude
-        }|${this.state.longitude}`
-      )
-        .then(response => response.json())
-        .then(landmarks => this.setState({ landmarks }))
-        .catch(console.log);
+      superagent
+        .get(
+          `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${
+            this.state.latitude
+          }|${this.state.longitude}&format=json`
+        ) // Wikipedia API call
+
+        .end((error, response) => {
+          if (error) {
+            console.error(error);
+          } else {
+            this.setState({ landmarks: JSON.parse(response.text) });
+            const landmarks = { ...this.state.landmarks.query };
+            const titles = landmarks.geosearch;
+            this.setState({ titles });
+          }
+        });
     }
   }
 
@@ -48,7 +60,23 @@ export class App extends Component {
   }
 
   render() {
-    console.log(this.state);
+    if (this.state.request) {
+      console.log(this.state.titles[0], 'here<<<<<<<<<<<<<<<<<<<');
+      return (
+        <View
+          style={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          {this.state.titles.map(function(t) {
+            return <Text>{t.title}</Text>;
+          })}
+          <Text>Test</Text>
+        </View>
+      );
+    }
     return (
       <View
         style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}
