@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import superagent from 'superagent';
 
@@ -40,7 +40,7 @@ export class App extends Component {
           `https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=10000&gscoord=${
             this.state.latitude
           }|${this.state.longitude}&format=json`
-        ) // Wikipedia API call
+        )
 
         .end((error, response) => {
           if (error) {
@@ -61,7 +61,6 @@ export class App extends Component {
 
   render() {
     if (this.state.request) {
-      console.log(this.state.titles[0], 'here<<<<<<<<<<<<<<<<<<<');
       return (
         <View
           style={{
@@ -71,14 +70,26 @@ export class App extends Component {
           }}
         >
           {this.state.titles.map(function(t) {
+            console.log(t.title, '<<<<<<');
             return (
-              <Text>
-                {t.title + ' '}
-                distance: {t.dist}m
-              </Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                key={t.pageid}
+              >
+                <Button
+                  title={t.title}
+                  onPress={() => {
+                    console.log('Pressed', t.title);
+                  }}
+                />
+                <Text>distance:{t.dist}m</Text>
+              </View>
             );
           })}
-          <Text>Test</Text>
         </View>
       );
     }
@@ -97,7 +108,6 @@ export class App extends Component {
             this.setState({ request: true });
           }}
         />
-        <Text>space</Text>
       </View>
     );
   }
