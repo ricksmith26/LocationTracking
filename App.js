@@ -71,7 +71,12 @@ export class App extends Component {
           }}
         >
           {this.state.titles.map(function(t) {
-            return <Text>{t.title}</Text>;
+            return (
+              <Text>
+                {t.title + ' '}
+                distance: {t.dist}m
+              </Text>
+            );
           })}
           <Text>Test</Text>
         </View>
