@@ -3,6 +3,8 @@ import { View, Text, Button, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import superagent from 'superagent';
 
+import { List } from './components/List';
+
 export class App extends Component {
   state = {
     latitude: null,
@@ -10,8 +12,9 @@ export class App extends Component {
     error: null,
     request: false,
     landmarks: {},
-    cookie: {},
-    titles: []
+    pageId: '',
+    titles: [],
+    info: ''
   };
 
   componentDidMount() {
@@ -60,6 +63,7 @@ export class App extends Component {
   }
 
   render() {
+    console.log(this.state.pageId);
     if (this.state.request) {
       return (
         <View
@@ -70,7 +74,7 @@ export class App extends Component {
           }}
         >
           {this.state.titles.map(function(t) {
-            console.log(t.title, '<<<<<<');
+            console.log(t.title, '<<<<<<<<<<<<<<<<<<');
             return (
               <View
                 style={{
@@ -81,9 +85,26 @@ export class App extends Component {
                 key={t.pageid}
               >
                 <Button
+                  icon={<Icon name="arrow-right" size={15} color="white" />}
                   title={t.title}
                   onPress={() => {
-                    console.log('Pressed', t.title);
+                    superagent
+                      .get(
+                        `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&pageids=${
+                          t.pageid
+                        }`
+                      )
+
+                      .end((error, response) => {
+                        if (error) {
+                          console.error(error);
+                        } else {
+                          console.log(
+                            '*****************************************************',
+                            response.text
+                          );
+                        }
+                      });
                   }}
                 />
                 <Text>distance:{t.dist}m</Text>
@@ -92,25 +113,46 @@ export class App extends Component {
           })}
         </View>
       );
-    }
-    return (
-      <View
-        style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}
-      >
-        <Text>Latitude: {this.state.latitude}</Text>
-        <Text>Longitude: {this.state.longitude}</Text>
-        {this.state.error ? <Text>Error: {this.state.error}</Text> : null}
-        <Text>{'\n'}</Text>
-        <Button
-          icon={<Icon name="arrow-right" size={15} color="white" />}
-          title="Search nearby Landmarks"
-          onPress={() => {
-            this.setState({ request: true });
+    } else
+      return (
+        <View
+          style={{
+            flexGrow: 1,
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
-        />
-      </View>
-    );
+        >
+          <Text>Latitude: {this.state.latitude}</Text>
+          <Text>Longitude: {this.state.longitude}</Text>
+          {this.state.error ? <Text>Error: {this.state.error}</Text> : null}
+          <Text>{'\n'}</Text>
+          <Button
+            icon={<Icon name="arrow-right" size={15} color="white" />}
+            title="Search nearby Landmarks"
+            onPress={() => {
+              this.setState({ request: true });
+            }}
+          />
+        </View>
+      );
   }
+
+  handleButton = (id, event) => {
+    superagent
+      .get(
+        `
+
+`
+      )
+
+      .end((error, response) => {
+        if (error) {
+          console.error(error);
+        } else {
+          console.log(response);
+        }
+      });
+  };
 }
 
 export default App;
